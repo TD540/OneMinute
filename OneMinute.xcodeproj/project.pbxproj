@@ -33,6 +33,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E9A782642B0C183A000C7F0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 		E9C0CBAE2B0BE4DD003B7979 /* Tappable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tappable.swift; sourceTree = "<group>"; };
 		E9FEC9262AD4570A000FEE6E /* OneMinute.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneMinute.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -90,6 +91,7 @@
 		E9FEC9282AD4570A000FEE6E /* OneMinute */ = {
 			isa = PBXGroup;
 			children = (
+				E9A782642B0C183A000C7F0B /* Info.plist */,
 				E9FEC9292AD4570A000FEE6E /* OneMinuteApp.swift */,
 				E9FEC92B2AD4570A000FEE6E /* ContentView.swift */,
 				E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */,
@@ -405,6 +407,7 @@
 				DEVELOPMENT_TEAM = ZK76SGK8FA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneMinute/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -436,6 +439,7 @@
 				DEVELOPMENT_TEAM = ZK76SGK8FA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneMinute/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
