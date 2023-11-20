@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E9C0CBAD2B0BE3DC003B7979 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */; };
+		E9C0CBAF2B0BE4DD003B7979 /* Tappable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C0CBAE2B0BE4DD003B7979 /* Tappable.swift */; };
 		E9FEC92A2AD4570A000FEE6E /* OneMinuteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FEC9292AD4570A000FEE6E /* OneMinuteApp.swift */; };
 		E9FEC92C2AD4570A000FEE6E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FEC92B2AD4570A000FEE6E /* ContentView.swift */; };
 		E9FEC92E2AD4570B000FEE6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9FEC92D2AD4570B000FEE6E /* Assets.xcassets */; };
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
+		E9C0CBAE2B0BE4DD003B7979 /* Tappable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tappable.swift; sourceTree = "<group>"; };
 		E9FEC9262AD4570A000FEE6E /* OneMinute.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneMinute.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9FEC9292AD4570A000FEE6E /* OneMinuteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneMinuteApp.swift; sourceTree = "<group>"; };
 		E9FEC92B2AD4570A000FEE6E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 				E9FEC9292AD4570A000FEE6E /* OneMinuteApp.swift */,
 				E9FEC92B2AD4570A000FEE6E /* ContentView.swift */,
 				E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */,
+				E9C0CBAE2B0BE4DD003B7979 /* Tappable.swift */,
 				E9FEC92D2AD4570B000FEE6E /* Assets.xcassets */,
 				E9FEC92F2AD4570B000FEE6E /* Preview Content */,
 			);
@@ -237,6 +240,7 @@
 			files = (
 				E9C0CBAD2B0BE3DC003B7979 /* TimerView.swift in Sources */,
 				E9FEC92C2AD4570A000FEE6E /* ContentView.swift in Sources */,
+				E9C0CBAF2B0BE4DD003B7979 /* Tappable.swift in Sources */,
 				E9FEC92A2AD4570A000FEE6E /* OneMinuteApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
