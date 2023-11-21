@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E913DE2C2B0C3C04009794E2 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E913DE2B2B0C3C04009794E2 /* README.md */; };
 		E9C0CBAD2B0BE3DC003B7979 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */; };
 		E9C0CBAF2B0BE4DD003B7979 /* Tappable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C0CBAE2B0BE4DD003B7979 /* Tappable.swift */; };
 		E9FEC92A2AD4570A000FEE6E /* OneMinuteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FEC9292AD4570A000FEE6E /* OneMinuteApp.swift */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E913DE2B2B0C3C04009794E2 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E9A782642B0C183A000C7F0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimerView.swift; sourceTree = "<group>"; };
 		E9C0CBAE2B0BE4DD003B7979 /* Tappable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tappable.swift; sourceTree = "<group>"; };
@@ -73,6 +75,7 @@
 		E9FEC91D2AD4570A000FEE6E = {
 			isa = PBXGroup;
 			children = (
+				E913DE2B2B0C3C04009794E2 /* README.md */,
 				E9FEC9282AD4570A000FEE6E /* OneMinute */,
 				E9FEC9272AD4570A000FEE6E /* Products */,
 			);
@@ -214,6 +217,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E913DE2C2B0C3C04009794E2 /* README.md in Resources */,
 				E9FEC9312AD4570B000FEE6E /* Preview Assets.xcassets in Resources */,
 				E9FEC92E2AD4570B000FEE6E /* Assets.xcassets in Resources */,
 			);
