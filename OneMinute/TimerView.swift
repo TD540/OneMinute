@@ -25,11 +25,13 @@ struct TimerView: View {
             VStack {
                 if isTimerRunning {
                     Text(String(count))
-                        .font(.system(size: 200))
+                        .font(.system(size: 400))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     Text("start")
-                        .font(.system(size: 200))
+                        .font(.system(size: 100))
                     Text("one minute")
+                        .font(.system(size: 25))
                 }
             }
             .fontWeight(.bold)
@@ -38,13 +40,13 @@ struct TimerView: View {
             .multilineTextAlignment(.center)
             .lineLimit(1)
             .minimumScaleFactor(0.3)
-            .showTappableIndicators(lineWidth: 6)
+            .showTappableIndicators(lineWidth: 8)
             .padding()
         }
         .onAppear(perform: prepareHaptics)
         .foregroundColor(.primary)
         .background {
-            RoundedRectangle(cornerRadius: 20.0)
+            RoundedRectangle(cornerRadius: 50.0)
                 .fill(isTimerRunning ? Color.green : .clear)
         }
         .animation(.easeInOut, value: isTimerRunning)
