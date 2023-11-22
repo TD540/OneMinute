@@ -5,23 +5,18 @@
 //  Created by Thomas on 12/11/2023.
 //
 
+
 import SwiftUI
-import CoreHaptics
 
 struct TimerView: View {
-    @State var isTimerRunning = false
-    @State private var startTime =  Date()
+    @State private var isTimerRunning = false
     @State private var count = 0
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    private var haptics = HapticsManager()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        Button {
-            if !isTimerRunning {
-                count = 0
-                startTime = Date()
-            }
-            isTimerRunning.toggle()
-        } label: {
+        Button(action: toggleTimer) {
             VStack {
                 if isTimerRunning {
                     Text(String(count))
@@ -43,7 +38,6 @@ struct TimerView: View {
             .showTappableIndicators(lineWidth: 8)
             .padding()
         }
-        .onAppear(perform: prepareHaptics)
         .foregroundColor(.primary)
         .background {
             RoundedRectangle(cornerRadius: 50.0)
@@ -51,52 +45,35 @@ struct TimerView: View {
         }
         .animation(.easeInOut, value: isTimerRunning)
         .onReceive(timer) { _ in
-            if isTimerRunning && count < 60 {
-                count = Int(Date().timeIntervalSince(startTime))
-                self.complexSuccess()
-            } else {
+            updateTimer()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            haptics.restartHaptics()
+        }
+    }
+
+    private func toggleTimer() {
+        isTimerRunning.toggle()
+        if isTimerRunning {
+            count = 0
+        }
+    }
+
+    private func updateTimer() {
+        if isTimerRunning {
+            count += 1
+            if count >= 60 {
                 isTimerRunning = false
+            } else {
+                if scenePhase == .active {
+                    haptics.playComplexSuccess()
+                }
             }
-        }
-        .padding()
-        .edgesIgnoringSafeArea(.bottom)
-    }
-
-    @State private var engine: CHHapticEngine?
-
-    func prepareHaptics() {
-        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
-
-        do {
-            engine = try CHHapticEngine()
-            try engine?.start()
-        } catch {
-            print("There was an error creating the engine: \(error.localizedDescription)")
-        }
-    }
-
-    func complexSuccess() {
-        // make sure that the device supports haptics
-        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
-        var events = [CHHapticEvent]()
-
-        // create one intense, sharp tap
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1)
-        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1)
-        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
-        events.append(event)
-
-        // convert those events into a pattern and play it immediately
-        do {
-            let pattern = try CHHapticPattern(events: events, parameters: [])
-            let player = try engine?.makePlayer(with: pattern)
-            try player?.start(atTime: 0)
-        } catch {
-            print("Failed to play pattern: \(error.localizedDescription).")
         }
     }
 
 }
+
 
 #Preview {
     TimerView()
