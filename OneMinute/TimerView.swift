@@ -5,7 +5,6 @@
 //  Created by Thomas on 12/11/2023.
 //
 
-
 import SwiftUI
 
 struct TimerView: View {
@@ -21,7 +20,7 @@ struct TimerView: View {
                 if isTimerRunning {
                     Text(String(count))
                         .font(.system(size: 400))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(maxWidth: 400, maxHeight: 400)
                 } else {
                     Text("start")
                         .font(.system(size: 100))

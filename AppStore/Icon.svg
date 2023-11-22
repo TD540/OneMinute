@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024px" height="1024px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon</title>
+    <g id="Icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#34C759" x="0" y="0" width="1024" height="1024"></rect>
+        <g>
+            <rect id="Rectangle" fill-opacity="0.1" fill="#FFFFFF" fill-rule="nonzero" x="0" y="512" width="1024" height="512"></rect>
+            <path d="M112,222.3448 C112,161.4032 161.4032,112 222.3448,112" id="Path" stroke="#FFFFFF" stroke-width="64" stroke-linecap="round"></path>
+            <path d="M112,801.656 C112,862.6 161.4032,912 222.3448,912" id="Path" stroke="#FFFFFF" stroke-width="64" stroke-linecap="round"></path>
+            <path d="M912,222.3448 C912,161.4032 862.6,112 801.656,112" id="Path" stroke="#FFFFFF" stroke-width="64" stroke-linecap="round"></path>
+            <path d="M801.656,912 C862.6,912 912,862.6 912,801.656" id="Path" stroke="#FFFFFF" stroke-width="64" stroke-linecap="round"></path>
+            <path d="M551.8288,761.5224 C524.0168,761.5224 504.9544,742.7728 504.9544,714.3352 L504.9544,391.5224 L503.0792,391.5224 L437.1416,437.46 C428.392,443.7096 421.8288,445.8976 412.1416,445.8976 C393.0792,445.8976 379.0168,432.1472 379.0168,412.1472 C379.0168,397.7728 384.6416,387.1472 399.3288,376.8352 L488.704,314.96 C510.5792,299.96 525.5792,297.1472 544.9544,297.1472 C578.392,297.1472 598.392,317.46 598.392,349.96 L598.392,714.3352 C598.392,742.7728 579.6416,761.5224 551.8288,761.5224 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg>
