@@ -4,7 +4,7 @@ A simple but quick and accurate one-minute timer
 
 <a href="https://testflight.apple.com/join/OgKySojp">Download via TestFlight</a>
 
-![App Icon](OneMinute/Assets.xcassets/AppIcon.appiconset/AppIcon.png)
+![App Icon](OneMinute/Assets.xcassets/AppIcon.appiconset/Icon.png)
 
 <h2><a name="privacy">I Collect No Personal Information Using My Application</a></h2>
 
