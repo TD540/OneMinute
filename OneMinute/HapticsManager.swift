@@ -25,13 +25,16 @@ class HapticsManager {
         }
     }
 
-    func playComplexSuccess() {
-        guard let engine = engine,
-              CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+    func playTimerEndHaptic() {
+        playHaptic(intensity: 0.8, sharpness: 0.8, duration: 0.8)
+    }
 
-        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1)
-        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1)
-        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+    func playHaptic(intensity: Float = 0.5, sharpness: Float = 0.5, delay: TimeInterval = 0.0, duration: TimeInterval = 0.5) {
+        guard let engine = engine, CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+
+        let intensityParameter = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
+        let sharpnessParameter = CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness)
+        let event = CHHapticEvent(eventType: .hapticContinuous, parameters: [intensityParameter, sharpnessParameter], relativeTime: delay, duration: duration)
 
         do {
             let pattern = try CHHapticPattern(events: [event], parameters: [])

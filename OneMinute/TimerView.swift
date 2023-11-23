@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TimerView: View {
     @State private var isTimerRunning = false
-    @State private var count = 0
+    @State private var seconds = 0
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     private var haptics = HapticsManager()
     @Environment(\.scenePhase) private var scenePhase
@@ -18,7 +18,7 @@ struct TimerView: View {
         Button(action: toggleTimer) {
             VStack {
                 if isTimerRunning {
-                    Text(String(count))
+                    Text(String(seconds))
                         .font(.system(size: 400))
                         .frame(maxWidth: 400, maxHeight: 400)
                 } else {
@@ -55,22 +55,28 @@ struct TimerView: View {
     private func toggleTimer() {
         isTimerRunning.toggle()
         if isTimerRunning {
-            count = 0
+            seconds = 0
         }
     }
 
     private func updateTimer() {
         if isTimerRunning {
-            count += 1
-            if count >= 60 {
-                isTimerRunning = false
-            } else {
+            seconds += 1
+            if seconds == 60 {
                 if scenePhase == .active {
-                    haptics.playComplexSuccess()
+                    haptics.playTimerEndHaptic()
+                }
+            } else if seconds == 61 {
+                    isTimerRunning = false
+            } else {
+                // Play the second tick haptic feedback
+                if scenePhase == .active {
+                    haptics.playHaptic()
                 }
             }
         }
     }
+
 
 }
 
