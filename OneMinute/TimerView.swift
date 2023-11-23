@@ -42,6 +42,7 @@ struct TimerView: View {
             RoundedRectangle(cornerRadius: 50.0)
                 .fill(isTimerRunning ? Color.green : .clear)
         }
+        .padding()
         .animation(.easeInOut, value: isTimerRunning)
         .onReceive(timer) { _ in
             updateTimer()
