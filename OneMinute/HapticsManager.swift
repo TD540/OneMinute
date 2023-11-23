@@ -26,10 +26,10 @@ class HapticsManager {
     }
 
     func playTimerEndHaptic() {
-        playHaptic(intensity: 0.8, sharpness: 0.8, duration: 0.8)
+        playHaptic(intensity: 1.0, duration: 0.8)
     }
 
-    func playHaptic(intensity: Float = 0.5, sharpness: Float = 0.5, delay: TimeInterval = 0.0, duration: TimeInterval = 0.5) {
+    func playHaptic(intensity: Float = 1.0, sharpness: Float = 1.0, delay: TimeInterval = 0.0, duration: TimeInterval = 0.1) {
         guard let engine = engine, CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
 
         let intensityParameter = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
