@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DCE9490D2B14910B00E8AF65 /* Logger-extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE9490C2B14910B00E8AF65 /* Logger-extension.swift */; };
 		E913DE2C2B0C3C04009794E2 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E913DE2B2B0C3C04009794E2 /* README.md */; };
 		E97992AB2B0E9D83005BC931 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97992AA2B0E9D83005BC931 /* HapticsManager.swift */; };
 		E9C0CBAD2B0BE3DC003B7979 /* TimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */; };
@@ -35,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DCE9490C2B14910B00E8AF65 /* Logger-extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger-extension.swift"; sourceTree = "<group>"; };
 		E913DE2B2B0C3C04009794E2 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E97992AA2B0E9D83005BC931 /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		E9A782642B0C183A000C7F0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 				E9FEC92B2AD4570A000FEE6E /* ContentView.swift */,
 				E9C0CBAC2B0BE3DC003B7979 /* TimerView.swift */,
 				E97992AA2B0E9D83005BC931 /* HapticsManager.swift */,
+				DCE9490C2B14910B00E8AF65 /* Logger-extension.swift */,
 				E9C0CBAE2B0BE4DD003B7979 /* Tappable.swift */,
 				E9FEC92D2AD4570B000FEE6E /* Assets.xcassets */,
 				E9FEC92F2AD4570B000FEE6E /* Preview Content */,
@@ -252,6 +255,7 @@
 				E9C0CBAF2B0BE4DD003B7979 /* Tappable.swift in Sources */,
 				E97992AB2B0E9D83005BC931 /* HapticsManager.swift in Sources */,
 				E9FEC92A2AD4570A000FEE6E /* OneMinuteApp.swift in Sources */,
+				DCE9490D2B14910B00E8AF65 /* Logger-extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
