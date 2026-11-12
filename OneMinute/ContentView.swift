@@ -23,8 +23,14 @@ struct ContentView: View {
         Button {
             seconds = isRunning ? nil : 0
         } label: {
-            Text(seconds.map(String.init) ?? "start")
-                .font(.system(size: isRunning ? 400 : 100, weight: .bold, design: .rounded))
+            Group {
+                if let seconds {
+                    RollingNumber(value: seconds, reservedDigits: 2)
+                } else {
+                    Text("start")
+                }
+            }
+                .font(.system(size: isRunning ? 400 : 100, weight: .black, design: .rounded))
                 .lineLimit(1)
                 .minimumScaleFactor(0.3)
                 .padding(40)

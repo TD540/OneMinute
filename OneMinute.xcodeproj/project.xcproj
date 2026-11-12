@@ -29,6 +29,7 @@
         },
         { "path": "Haptics.swift", "target-membership": [ "OneMinute/compile-sources" ] },
         { "path": "TappableIndicators.swift", "target-membership": [ "OneMinute/compile-sources" ] },
+        { "path": "RollingNumber.swift", "target-membership": [ "OneMinute/compile-sources" ] },
       ],
     }, {
       "kind": "group",
