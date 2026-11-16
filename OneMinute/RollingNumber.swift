@@ -6,8 +6,8 @@
 import SwiftUI
 
 /// A number that reads like a plain `Text`, except that each changing digit rolls vertically like
-/// a mechanical drum counter: the old digit scrolls up and out while the new one rolls in from
-/// below, clipped to the line height. Decreasing values roll the other way, carries cascade from
+/// a drum: the old digit shrinks away upward while the new one grows in from below, within the
+/// line height. Decreasing values roll the other way, carries cascade from
 /// right to left, and unchanged digits stay still.
 ///
 /// Font, color, line limit and scale factor come from the environment, as with `Text`.
@@ -155,10 +155,10 @@ private struct DigitDrum: View {
     }
 }
 
-/// Draws the faces around a drum position, printed one below the other on a strip wound around an
-/// invisible drum, which shows through the line like an odometer's window. The face in front reads
-/// like plain text; at a fractional position the faces travel together over the drum's curve,
-/// getting squashed and narrower toward the top and bottom of the line.
+/// Draws the faces around a drum position, a quarter turn apart on an invisible drum as tall as
+/// the line. The face in front reads like plain text; at a fractional position the faces turn
+/// together: the next one grows from a point at the bottom of the line as it comes to the front,
+/// while the current one shrinks away to a point at the top (or the other way round going down).
 ///
 /// Faces are printed off-center, toward the side the drum leans to, by however much narrower
 /// their digit is than the drum: so a 1 sits as close to its neighbor as it would in plain text.
@@ -171,50 +171,30 @@ private struct DrumFaces: View {
     /// Each digit's own width as a fraction of the equal width the drum is as wide as.
     @AnimatableIgnored var digitWidths: [CGFloat] = Array(repeating: 1, count: 10)
 
-    /// The drum's radius, in line heights; at least 0.5, the line being the drum's window. Smaller
-    /// drums curve more.
-    private let radius = 0.6
-    /// How much narrower faces get as they turn away.
-    private let perspective = 0.4
-
     var body: some View {
         let base = position.rounded(.down)
         let fraction = position - base
-        let radius = radius, perspective = perspective
 
         ZStack {
-            face(at: Int(base))
-                .visualEffect { content, proxy in
-                    content.offset(y: -fraction * proxy.size.height)
-                }
-            face(at: Int(base) + 1)
-                .visualEffect { content, proxy in
-                    content.offset(y: (1 - fraction) * proxy.size.height)
-                }
+            face(at: Int(base), turn: -fraction)
+            face(at: Int(base) + 1, turn: 1 - fraction)
         }
-        .visualEffect { content, proxy in
-            let radius = radius * proxy.size.height
-            // How far up or down the drum moves content at most: at the window's top and bottom.
-            let edge = proxy.size.height / 2
-            return content.distortionEffect(
-                ShaderLibrary.drumRoll(.float2(proxy.size), .float(radius), .float(perspective)),
-                maxSampleOffset: CGSize(
-                    width: proxy.size.width / 2 * perspective,
-                    height: radius * asin(edge / radius) - edge
-                )
-            )
-        }
-        .clipped()
     }
 
-    /// A blank face still takes up a digit's size, so the width doesn't change.
-    private func face(at position: Int) -> some View {
+    /// A face turned `turn` quarter turns away from the front, downward when positive: seen from
+    /// the front it moves toward the line's edge and shrinks with the cosine of its angle, down to
+    /// nothing at a quarter turn. A blank face still takes up a digit's size, so the width doesn't
+    /// change.
+    private func face(at position: Int, turn: Double) -> some View {
         let digit = faces[position]
         let shift = digit.map { lean * (1 - digitWidths[$0]) / 2 } ?? 0
+        let angle = min(max(turn, -1), 1) * .pi / 2
         return Text(String(digit ?? 0))
             .opacity(digit == nil ? 0 : 1)
             .visualEffect { content, proxy in
-                content.offset(x: shift * proxy.size.width)
+                content
+                    .scaleEffect(cos(angle))
+                    .offset(x: shift * proxy.size.width, y: sin(angle) * proxy.size.height / 2)
             }
     }
 }

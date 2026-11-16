@@ -37,7 +37,6 @@
             "OneMinuteWidgetExtension/compile-sources",
           ],
         },
-        { "path": "DrumRoll.metal", "target-membership": [ "OneMinute/compile-sources" ] },
         { "path": "PressFeedback.swift", "target-membership": [ "OneMinute/compile-sources" ] },
         { "path": "Ripple.metal", "target-membership": [ "OneMinute/compile-sources" ] },
       ],
