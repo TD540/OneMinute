@@ -22,6 +22,8 @@ struct ContentView: View {
     @State private var isActive = true
     /// Height of the strip along the bottom edge where swiping goes home.
     @State private var homeIndicatorHeight: CGFloat = 0
+    /// Distance from the display's edges to the corner brackets, which frame the text.
+    @State private var indicatorInset: CGFloat = 20
     /// Where the current touch started, once it has moved too far to count as a tap.
     @State private var cancelledTouch: CGPoint?
     /// Where the finger is while a touch can still become a tap.
@@ -35,27 +37,33 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let seconds {
-                RollingNumber(value: seconds, reservedDigits: 2)
+                // Sized for one digit, filling the space; two digits shrink to fit side by side.
+                RollingNumber(value: seconds, tracking: -0.2, overhang: 0.07)
             } else {
                 Text("start")
             }
         }
-        .font(.system(size: isRunning ? 400 : 100, weight: .semibold, design: .rounded))
+        // Far too big for any display, then shrunk to fill the space between the corner brackets.
+        .font(.system(size: 1000, weight: .semibold, design: .rounded))
         .lineLimit(1)
-        .minimumScaleFactor(0.3)
-        .padding(40)
+        .minimumScaleFactor(0.01)
+        // Out to the outer edges of the brackets' lines, which are 8 pt wide.
+        .padding(indicatorInset - 4)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // A hint that tapping again stops the timer.
         .overlay(alignment: .bottom) {
             if isRunning {
+                // Sitting on the bottom edge of the lower brackets' lines, which are 8 pt wide.
                 Text("stop")
                     .font(.system(size: 24, weight: .semibold, design: .rounded))
-                    .padding(.bottom, 60)
+                    .alignmentGuide(.bottom) { $0[.lastTextBaseline] }
+                    .padding(.bottom, indicatorInset - 4)
             }
         }
         // On a partially open iPhone Duo: "start" on the right side, the count on the left.
         .padding(isRunning ? foldSides.first : foldSides.second)
         .onGeometryChange(for: FoldSides.self, of: FoldSides.init) { foldSides = $0 }
+        .onGeometryChange(for: CGFloat.self, of: \.tappableIndicatorsInset) { indicatorInset = $0 }
         // Black while running, like the Dynamic Island.
         .tappableIndicators(color: isRunning ? .black : .primary)
         // Green floods out from the tap that starts the timer, and drains into the one that stops it.
@@ -114,6 +122,7 @@ struct ContentView: View {
                       hypot(value.translation.width, value.translation.height) <= slop else { return }
                 tapLocation = value.location
                 tapCount += 1
+                if isActive { haptics.ripple() }
                 toggle()
             }
     }
@@ -147,7 +156,12 @@ struct ContentView: View {
             // Skip haptics when inactive, or when catching up on ticks missed in the background.
             let isLate = ContinuousClock.now - deadline > tick / 2
             if isActive && !isLate {
-                haptics.play(duration: second == 60 ? 0.8 : 0.1)
+                if second == 60 {
+                    haptics.play(duration: 0.8, intensity: 0.7, sharpness: 0.5)
+                } else {
+                    // A tick that is clearly felt without being harsh.
+                    haptics.play(duration: 0.1, intensity: 0.6, sharpness: 0.5)
+                }
             }
         }
 

@@ -13,23 +13,8 @@ extension View {
         overlay {
             GeometryReader { proxy in
                 let bounds = CGRect(origin: .zero, size: proxy.size)
-                // The camera is the smallest reserved region; others, like the Duo's side controls,
-                // are larger. Regions are only reported in the running app, not in previews.
-                let camera = proxy.reservedRegions(kind: .occlusion, layoutDirectionBehavior: .fixed)
-                    .map { region in
-                        // The hardware itself, without the margins the system adds around it.
-                        let frame = region.frame, margins = region.margins
-                        return CGRect(
-                            x: frame.minX + margins.leading,
-                            y: frame.minY + margins.top,
-                            width: frame.width - margins.leading - margins.trailing,
-                            height: frame.height - margins.top - margins.bottom
-                        )
-                    }
-                    .min { $0.width * $0.height < $1.width * $1.height }
-                // Distance from the edges to the lines: that of the camera's center, so the lines
-                // line up with it. The same on all sides, and 20 pt on displays without a camera.
-                let inset = camera.map { min($0.midX, bounds.maxX - $0.midX, $0.midY, bounds.maxY - $0.midY) } ?? 20
+                let camera = proxy.camera
+                let inset = proxy.tappableIndicatorsInset
                 let rect = bounds.insetBy(dx: inset, dy: inset)
 
                 CornerBrackets(
@@ -40,6 +25,34 @@ extension View {
                 .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
             }
         }
+    }
+}
+
+extension GeometryProxy {
+    /// The camera (Dynamic Island or camera hole), in this proxy's coordinates. It's the smallest
+    /// reserved region; others, like the Duo's side controls, are larger. Regions are only reported
+    /// in the running app, not in previews.
+    fileprivate var camera: CGRect? {
+        reservedRegions(kind: .occlusion, layoutDirectionBehavior: .fixed)
+            .map { region in
+                // The hardware itself, without the margins the system adds around it.
+                let frame = region.frame, margins = region.margins
+                return CGRect(
+                    x: frame.minX + margins.leading,
+                    y: frame.minY + margins.top,
+                    width: frame.width - margins.leading - margins.trailing,
+                    height: frame.height - margins.top - margins.bottom
+                )
+            }
+            .min { $0.width * $0.height < $1.width * $1.height }
+    }
+
+    /// Distance from the edges to the lines of `tappableIndicators`, for a proxy covering the
+    /// display: that of the camera's center, so the lines line up with it. The same on all sides,
+    /// and 20 pt on displays without a camera.
+    var tappableIndicatorsInset: CGFloat {
+        let bounds = CGRect(origin: .zero, size: size)
+        return camera.map { min($0.midX, bounds.maxX - $0.midX, $0.midY, bounds.maxY - $0.midY) } ?? 20
     }
 }
 

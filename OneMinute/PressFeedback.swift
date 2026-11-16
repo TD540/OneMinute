@@ -134,7 +134,7 @@ struct Flood: View {
 
 #Preview("Pressed top right") {
     Text("12")
-        .font(.system(size: 200, weight: .semibold, design: .rounded))
+        .font(.system(size: 200, weight: .semibold))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.green)
         .pressFeedback(at: CGPoint(x: 330, y: 120), glow: .white, rippleFrom: .zero, rippleTrigger: 0)

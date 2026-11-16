@@ -15,10 +15,10 @@ struct OneMinuteLiveActivity: Widget {
             // Lock Screen: black on green, like the app while it counts.
             HStack {
                 Text("1 minute")
-                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .font(.system(.title3, weight: .bold))
                 Spacer()
                 ElapsedText(interval: context.attributes.interval)
-                    .font(.system(size: 56, weight: .black, design: .rounded))
+                    .font(.system(size: 56, weight: .black))
                     .frame(width: 140)
                     .multilineTextAlignment(.trailing)
             }
@@ -35,7 +35,7 @@ struct OneMinuteLiveActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     ElapsedText(interval: context.attributes.interval)
-                        .font(.system(size: 44, weight: .black, design: .rounded))
+                        .font(.system(size: 44, weight: .black))
                         .foregroundStyle(.green)
                         .frame(width: 120)
                         .multilineTextAlignment(.trailing)
@@ -44,7 +44,7 @@ struct OneMinuteLiveActivity: Widget {
                 ProgressRing(interval: context.attributes.interval)
             } compactTrailing: {
                 ElapsedText(interval: context.attributes.interval)
-                    .font(.system(.body, design: .rounded, weight: .bold))
+                    .font(.system(.body, weight: .bold))
                     .foregroundStyle(.green)
                     .frame(width: 44)
                     .multilineTextAlignment(.trailing)

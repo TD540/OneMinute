@@ -19,52 +19,86 @@ struct RollingNumber: View {
     /// Space between digits as a fraction of a digit's width. Negative values pull the digits
     /// closer together than the font's own spacing, which is wide for equal-width digits.
     var tracking: CGFloat = -0.12
+    /// How much of a digit's width, on the outer side of the first and last digit, may stick out
+    /// of the frame: the empty space beside the digit, so the digits themselves reach its edges.
+    var overhang: CGFloat = 0
     /// Delay in seconds between neighboring digits, so carries cascade from right to left.
     var stagger = 0.06
 
+    /// Each digit's own width, and the size of an equal-width digit, at full font size.
+    @State private var naturalWidths = Array(repeating: CGFloat(0), count: 10)
+    @State private var equalWidth: CGFloat = 0
+
     var body: some View {
         let digitCount = String(value.magnitude).count
-        DigitRow(reservedDigits: reservedDigits, tracking: tracking) {
+        // Each digit's own width as a fraction of the equal width; the same at any font size.
+        let digitWidths = equalWidth > 0
+            ? naturalWidths.map { $0 / equalWidth }
+            : Array(repeating: 1, count: 10)
+        DigitRow(reservedDigits: reservedDigits, tracking: tracking, overhang: overhang) {
             // Identified by place (ones, tens, …) so each drum keeps its state as the value changes.
             ForEach((0..<digitCount).reversed(), id: \.self) { place in
-                DigitDrum(value: value, place: place, stagger: stagger)
+                // The outer digits lean inward, toward their neighbors.
+                let lean: CGFloat = digitCount == 1 ? 0 : place == digitCount - 1 ? 1 : place == 0 ? -1 : 0
+                DigitDrum(value: value, place: place, stagger: stagger, lean: lean, digitWidths: digitWidths)
             }
         }
         // Equal-width digits keep the drums from jiggling as they roll.
         .monospacedDigit()
+        .background { measurements }
         .animation(.smooth, value: digitCount)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(String(value))
+    }
+
+    /// Measures the digits in the current font, at full size.
+    private var measurements: some View {
+        ZStack {
+            Text("0")
+                .monospacedDigit()
+                .fixedSize()
+                .onGeometryChange(for: CGFloat.self, of: \.size.width) { equalWidth = $0 }
+            ForEach(0..<10, id: \.self) { digit in
+                Text(String(digit))
+                    .fixedSize()
+                    .onGeometryChange(for: CGFloat.self, of: \.size.width) { naturalWidths[digit] = $0 }
+            }
+        }
+        .hidden()
     }
 }
 
 /// Lays out digits side by side, offering each the width of one of `reservedDigits` columns,
 /// so every digit shrinks (through `minimumScaleFactor`) by the same amount whatever their count.
-/// Digits are `tracking` digit widths apart, overlapping their frames when it's negative.
+/// Digits are `tracking` digit widths apart, overlapping their frames when it's negative, and the
+/// first and last stick out of the row by `overhang` digit widths.
 private struct DigitRow: Layout {
     var reservedDigits: Int
     var tracking: CGFloat
+    var overhang: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let sizes = subviews.map { $0.sizeThatFits(columnProposal(proposal, count: subviews.count)) }
         let widths = sizes.reduce(0) { $0 + $1.width }
         let gaps = sizes.dropLast().reduce(0) { $0 + $1.width * tracking }
-        return CGSize(width: widths + gaps, height: sizes.map(\.height).max() ?? 0)
+        let overhangs = ((sizes.first?.width ?? 0) + (sizes.last?.width ?? 0)) * overhang
+        return CGSize(width: max(widths + gaps - overhangs, 0), height: sizes.map(\.height).max() ?? 0)
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         let column = columnProposal(proposal, count: subviews.count)
-        var x = bounds.minX
+        var x = bounds.minX - (subviews.first?.sizeThatFits(column).width ?? 0) * overhang
         for subview in subviews {
             subview.place(at: CGPoint(x: x, y: bounds.midY), anchor: .leading, proposal: column)
             x += subview.sizeThatFits(column).width * (1 + tracking)
         }
     }
 
-    /// The width that lets `reservedDigits` digits, with the gaps between them, fill the proposal.
+    /// The width that lets `reservedDigits` digits, with the gaps between them and less the
+    /// overhangs, fill the proposal.
     private func columnProposal(_ proposal: ProposedViewSize, count: Int) -> ProposedViewSize {
         let columns = CGFloat(max(reservedDigits, count))
-        let width = proposal.width.map { $0 / (columns + (columns - 1) * tracking) }
+        let width = proposal.width.map { $0 / (columns + (columns - 1) * tracking - 2 * overhang) }
         return ProposedViewSize(width: width, height: proposal.height)
     }
 }
@@ -75,22 +109,26 @@ private struct DigitDrum: View {
     /// 0 for the ones, 1 for the tens, and so on.
     var place: Int
     var stagger: Double
+    var lean: CGFloat
+    var digitWidths: [CGFloat]
 
     /// The drum's position, one step per roll: up when the value increases, down when it decreases.
     @State private var position = 0
     /// The digit printed at each position of the drum; positions without one are blank.
     @State private var faces: [Int: Int]
 
-    init(value: Int, place: Int, stagger: Double) {
+    init(value: Int, place: Int, stagger: Double, lean: CGFloat, digitWidths: [CGFloat]) {
         self.value = value
         self.place = place
         self.stagger = stagger
+        self.lean = lean
+        self.digitWidths = digitWidths
         // Digits that appear later, like the tens at 10, roll in from a blank face.
         _faces = State(initialValue: place == 0 ? [0: Self.digit(of: value, at: place)] : [:])
     }
 
     var body: some View {
-        DrumFaces(position: Double(position), faces: faces)
+        DrumFaces(position: Double(position), faces: faces, lean: lean, digitWidths: digitWidths)
             .onAppear {
                 if faces.isEmpty { roll(to: Self.digit(of: value, at: place), up: true) }
             }
@@ -121,10 +159,17 @@ private struct DigitDrum: View {
 /// invisible drum, which shows through the line like an odometer's window. The face in front reads
 /// like plain text; at a fractional position the faces travel together over the drum's curve,
 /// getting squashed and narrower toward the top and bottom of the line.
+///
+/// Faces are printed off-center, toward the side the drum leans to, by however much narrower
+/// their digit is than the drum: so a 1 sits as close to its neighbor as it would in plain text.
 @Animatable
 private struct DrumFaces: View {
     var position: Double
     @AnimatableIgnored var faces: [Int: Int]
+    /// -1 to lean left, 1 to lean right, 0 to stay centered.
+    @AnimatableIgnored var lean: CGFloat = 0
+    /// Each digit's own width as a fraction of the equal width the drum is as wide as.
+    @AnimatableIgnored var digitWidths: [CGFloat] = Array(repeating: 1, count: 10)
 
     /// The drum's radius, in line heights; at least 0.5, the line being the drum's window. Smaller
     /// drums curve more.
@@ -165,7 +210,12 @@ private struct DrumFaces: View {
     /// A blank face still takes up a digit's size, so the width doesn't change.
     private func face(at position: Int) -> some View {
         let digit = faces[position]
-        return Text(String(digit ?? 0)).opacity(digit == nil ? 0 : 1)
+        let shift = digit.map { lean * (1 - digitWidths[$0]) / 2 } ?? 0
+        return Text(String(digit ?? 0))
+            .opacity(digit == nil ? 0 : 1)
+            .visualEffect { content, proxy in
+                content.offset(x: shift * proxy.size.width)
+            }
     }
 }
 
