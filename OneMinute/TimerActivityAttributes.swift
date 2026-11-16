@@ -9,7 +9,7 @@ import Foundation
 /// Describes the Live Activity shown on the Lock Screen and in the Dynamic Island while the
 /// timer runs. Shared between the app, which starts and ends it, and the widget extension,
 /// which draws it.
-struct TimerActivityAttributes: ActivityAttributes {
+nonisolated struct TimerActivityAttributes: ActivityAttributes {
     /// Nothing changes during the minute: the system counts from `start` on its own.
     struct ContentState: Codable, Hashable {}
 

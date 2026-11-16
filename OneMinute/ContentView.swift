@@ -90,10 +90,12 @@ struct ContentView: View {
             // Read both clocks together, before requesting the Live Activity, which can take a
             // while: starting from the same instant keeps the app and the activity in step.
             let start = ContinuousClock.now
-            let activity = startLiveActivity(start: .now)
+            let activityID = startLiveActivity(start: .now)
             try? await count(from: start)
             // A separate task, since this one may have been cancelled by stopping the timer.
-            Task { await activity?.end(nil, dismissalPolicy: .immediate) }
+            if let activityID {
+                Task { await Self.endLiveActivities([activityID]) }
+            }
         }
     }
 
@@ -128,18 +130,31 @@ struct ContentView: View {
     }
 
     /// Shows the timer on the Lock Screen and in the Dynamic Island, where the system keeps
-    /// counting even while the app is suspended. Returns `nil` if Live Activities are turned off.
-    private func startLiveActivity(start: Date) -> Activity<TimerActivityAttributes>? {
-        // End any activity left behind, for example by a minute that ran out while suspended.
-        for activity in Activity<TimerActivityAttributes>.activities {
-            Task { await activity.end(nil, dismissalPolicy: .immediate) }
+    /// counting even while the app is suspended. Returns the activity's ID, or `nil` if Live
+    /// Activities are turned off.
+    private func startLiveActivity(start: Date) -> String? {
+        // End any activity left behind, for example by a minute that ran out while suspended,
+        // in the background so the new activity isn't held up waiting for them. Collected by ID
+        // before the request, so the new activity is never among them.
+        let staleIDs = Set(Activity<TimerActivityAttributes>.activities.map(\.id))
+        if !staleIDs.isEmpty {
+            Task { await Self.endLiveActivities(staleIDs) }
         }
         let attributes = TimerActivityAttributes(start: start)
         let content = ActivityContent(
             state: TimerActivityAttributes.ContentState(),
             staleDate: attributes.interval.upperBound
         )
-        return try? Activity.request(attributes: attributes, content: content)
+        return try? Activity.request(attributes: attributes, content: content).id
+    }
+
+    /// Ends the timer's Live Activities with the given IDs. Activities aren't `Sendable`, so
+    /// they're looked up here, off the main actor, rather than handed over from it.
+    @concurrent
+    private static func endLiveActivities(_ ids: Set<String>) async {
+        for activity in Activity<TimerActivityAttributes>.activities where ids.contains(activity.id) {
+            await activity.end(nil, dismissalPolicy: .immediate)
+        }
     }
 
     /// Counts to 60 from `start` with a tick haptic each step and a long one at the end, then stops.
@@ -172,7 +187,7 @@ struct ContentView: View {
 }
 
 /// The whole rectangle except a strip of `bottomInset` along its bottom edge.
-private struct HitArea: Shape {
+nonisolated private struct HitArea: Shape {
     var bottomInset: CGFloat
 
     func path(in rect: CGRect) -> Path {
@@ -182,7 +197,7 @@ private struct HitArea: Shape {
 
 /// Padding that keeps content on one side of the iPhone Duo's fold. The fold is only reported
 /// while the device is partially open, so elsewhere both are zero and content stays centered.
-private struct FoldSides: Equatable {
+nonisolated private struct FoldSides: Equatable {
     /// Keeps content left of the fold (or above it, when the fold runs sideways).
     var first = EdgeInsets()
     /// Keeps content right of the fold (or below it).

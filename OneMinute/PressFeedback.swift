@@ -48,7 +48,7 @@ private struct PressFeedback: ViewModifier {
                     .blendMode(.plusLighter)
                     .allowsHitTesting(false)
             }
-            .keyframeAnimator(initialValue: Ripple.duration, trigger: rippleTrigger) { view, elapsed in
+            .keyframeAnimator(initialValue: Ripple.duration, trigger: rippleTrigger) { [rippleOrigin, reduceMotion] view, elapsed in
                 view.modifier(Ripple(origin: rippleOrigin, elapsed: reduceMotion ? Ripple.duration : elapsed))
             } keyframes: { _ in
                 MoveKeyframe(0)
@@ -80,7 +80,7 @@ private struct PressFeedback: ViewModifier {
 
 /// Distorts a view with the `ripple` shader at a moment in the ripple's life.
 private struct Ripple: ViewModifier {
-    static let duration: TimeInterval = 2
+    nonisolated static let duration: TimeInterval = 2
 
     var origin: CGPoint
     var elapsed: TimeInterval

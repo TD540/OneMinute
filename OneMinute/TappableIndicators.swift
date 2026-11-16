@@ -28,7 +28,7 @@ extension View {
     }
 }
 
-extension GeometryProxy {
+nonisolated extension GeometryProxy {
     /// The camera (Dynamic Island or camera hole), in this proxy's coordinates. It's the smallest
     /// reserved region; others, like the Duo's side controls, are larger. Regions are only reported
     /// in the running app, not in previews.
@@ -58,7 +58,7 @@ extension GeometryProxy {
 
 /// An L-shaped line in each corner of `rect`, bent like the system's continuous rounded corners,
 /// except in the corner holding the camera.
-private struct CornerBrackets: Shape {
+nonisolated private struct CornerBrackets: Shape {
     var rect: CGRect
     var radii: RectangleCornerRadii
     var camera: CGRect?
