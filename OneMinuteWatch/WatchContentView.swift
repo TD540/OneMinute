@@ -110,7 +110,7 @@ struct WatchContentView: View {
         session = nil
     }
 
-    /// Counts to 60 from `start` with a click each step and a stronger haptic at the end, then stops.
+    /// Counts to 60 from `start` with a tap each step and the strongest haptic at the end, then stops.
     private func count(from start: ContinuousClock.Instant) async throws {
         let tick: Duration = fastMode ? .milliseconds(50) : .seconds(1)
         let device = WKInterfaceDevice.current()
@@ -124,7 +124,8 @@ struct WatchContentView: View {
             // Skip haptics when catching up on ticks missed while suspended.
             let isLate = ContinuousClock.now - deadline > tick / 2
             if !isLate {
-                device.play(second == 60 ? .notification : .click)
+                // The firmest short tap for each second; apps can choose a haptic but not its strength.
+                device.play(second == 60 ? .notification : .start)
             }
         }
 
