@@ -14,7 +14,7 @@ struct OneMinuteLiveActivity: Widget {
         ActivityConfiguration(for: TimerActivityAttributes.self) { context in
             // Lock Screen: black on green, like the app while it counts.
             HStack {
-                Text("1 minute")
+                Text("Minuut")
                     .font(.system(.title3, weight: .bold))
                 Spacer()
                 ElapsedText(interval: context.attributes.interval)

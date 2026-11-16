@@ -1,4 +1,4 @@
-# 1 Minute Timer
+# Minuut
 
 A simple but quick and accurate one-minute timer
 

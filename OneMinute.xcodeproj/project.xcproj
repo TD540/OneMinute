@@ -30,6 +30,12 @@
           "inclusions": [
             "TimerActivityAttributes.swift",
           ],
+        }, {
+          "target": "OneMinuteWatch",
+          "inclusions": [
+            "Flood.swift",
+            "RollingNumber.swift",
+          ],
         },
       ],
     }, {
@@ -41,6 +47,20 @@
       "membership-exceptions": [
         {
           "target": "OneMinuteWidgetExtension",
+          "exclusions": [
+            "Info.plist",
+          ],
+        },
+      ],
+    }, {
+      "kind": "folder",
+      "path": "OneMinuteWatch",
+      "target-membership": [
+        "OneMinuteWatch",
+      ],
+      "membership-exceptions": [
+        {
+          "target": "OneMinuteWatch",
           "exclusions": [
             "Info.plist",
           ],
@@ -59,6 +79,7 @@
       "children": [
         { "path": "<PRODUCTS>/OneMinute.app", "id": "E9FEC9262AD4570A000FEE6E", "type": "wrapper.application", "index": false },
         { "path": "<PRODUCTS>/OneMinuteWidgetExtension.appex", "id": "E93EABC030A6540B0071E8C5", "type": "wrapper.app-extension", "index": false, "target-membership": [ { "build-phase": "OneMinute/copy/Embed Foundation Extensions", "header-preservation": "remove-on-copy" } ] },
+        { "path": "<PRODUCTS>/OneMinuteWatch.app", "id": "E961A44230ABA51800756643", "type": "wrapper.application", "index": false, "target-membership": [ { "build-phase": "OneMinute/copy/Embed Watch Content", "header-preservation": "remove-on-copy" } ] },
       ],
     },
   ],
@@ -70,6 +91,7 @@
       "product-type": "application",
       "dependencies": [
         "OneMinuteWidgetExtension",
+        "OneMinuteWatch",
       ],
       "build-phases": [
         "compile-sources",
@@ -79,6 +101,11 @@
           "kind": "copy",
           "name": "Embed Foundation Extensions",
           "bundle-base-path": "plugins-directory",
+        }, {
+          "kind": "copy",
+          "name": "Embed Watch Content",
+          "bundle-base-path": "build-products-directory",
+          "relative-path": "$(CONTENTS_FOLDER_PATH)/Watch",
         },
       ],
       "build-settings": {
@@ -86,6 +113,7 @@
         "DEVELOPMENT_ASSET_PATHS": "\"OneMinute/Preview Content\"",
         "ENABLE_PREVIEWS": "YES",
         "INFOPLIST_FILE": "OneMinute/Info.plist",
+        "INFOPLIST_KEY_CFBundleDisplayName": "Minuut",
         "INFOPLIST_KEY_ITSAppUsesNonExemptEncryption": "NO",
         "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.utilities",
         "INFOPLIST_KEY_NSSupportsLiveActivities": "YES",
@@ -113,7 +141,7 @@
       "build-settings": {
         "ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME": "WidgetBackground",
         "INFOPLIST_FILE": "OneMinuteWidget/Info.plist",
-        "INFOPLIST_KEY_CFBundleDisplayName": "1 Minute",
+        "INFOPLIST_KEY_CFBundleDisplayName": "Minuut",
         "INFOPLIST_KEY_NSHumanReadableCopyright": "",
         "LD_RUNPATH_SEARCH_PATHS": [
           "$(inherited)",
@@ -122,6 +150,35 @@
         ],
         "PRODUCT_BUNDLE_IDENTIFIER": "design.td540.OneMinute.OneMinuteWidget",
         "SKIP_INSTALL": "YES",
+      },
+    }, {
+      "name": "OneMinuteWatch",
+      "id": "E961A44130ABA51800756643",
+      "product": "Products/OneMinuteWatch.app",
+      "product-type": "application",
+      "build-phases": [
+        "compile-sources",
+        "frameworks",
+        "resources",
+      ],
+      "build-settings": {
+        "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+        "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+        "ENABLE_PREVIEWS": "YES",
+        "INFOPLIST_FILE": "OneMinuteWatch/Info.plist",
+        "INFOPLIST_KEY_CFBundleDisplayName": "Minuut",
+        "INFOPLIST_KEY_UISupportedInterfaceOrientations": "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown",
+        "INFOPLIST_KEY_WKCompanionAppBundleIdentifier": "design.td540.OneMinute",
+        "INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp": "YES",
+        "LD_RUNPATH_SEARCH_PATHS": [
+          "$(inherited)",
+          "@executable_path/Frameworks",
+        ],
+        "PRODUCT_BUNDLE_IDENTIFIER": "design.td540.OneMinute.watchkitapp",
+        "SDKROOT": "watchos",
+        "SKIP_INSTALL": "YES",
+        "TARGETED_DEVICE_FAMILY": "4",
+        "WATCHOS_DEPLOYMENT_TARGET": "27.1",
       },
     },
   ],
@@ -195,10 +252,10 @@
     "SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Debug]": "DEBUG $(inherited)",
     "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
     "SWIFT_COMPILATION_MODE[config=Release]": "wholemodule",
+    "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
     "SWIFT_EMIT_LOC_STRINGS": "YES",
     "SWIFT_OPTIMIZATION_LEVEL[config=Debug]": "-Onone",
     "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
-    "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
     "SWIFT_VERSION": "6.0",
     "TARGETED_DEVICE_FAMILY": "1,2",
     "VALIDATE_PRODUCT[config=Release]": "YES",
