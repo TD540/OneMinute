@@ -30,12 +30,44 @@
         { "path": "Haptics.swift", "target-membership": [ "OneMinute/compile-sources" ] },
         { "path": "TappableIndicators.swift", "target-membership": [ "OneMinute/compile-sources" ] },
         { "path": "RollingNumber.swift", "target-membership": [ "OneMinute/compile-sources" ] },
+        {
+          "path": "TimerActivityAttributes.swift",
+          "target-membership": [
+            "OneMinute/compile-sources",
+            "OneMinuteWidgetExtension/compile-sources",
+          ],
+        },
+        { "path": "DrumRoll.metal", "target-membership": [ "OneMinute/compile-sources" ] },
+        { "path": "PressFeedback.swift", "target-membership": [ "OneMinute/compile-sources" ] },
+        { "path": "Ripple.metal", "target-membership": [ "OneMinute/compile-sources" ] },
+      ],
+    }, {
+      "kind": "folder",
+      "path": "OneMinuteWidget",
+      "target-membership": [
+        "OneMinuteWidgetExtension",
+      ],
+      "membership-exceptions": [
+        {
+          "target": "OneMinuteWidgetExtension",
+          "exclusions": [
+            "Info.plist",
+          ],
+        },
+      ],
+    }, {
+      "kind": "group",
+      "name": "Frameworks",
+      "children": [
+        { "path": "/System/Library/Frameworks/WidgetKit.framework", "target-membership": [ "OneMinuteWidgetExtension/frameworks" ] },
+        { "path": "/System/Library/Frameworks/SwiftUI.framework", "target-membership": [ "OneMinuteWidgetExtension/frameworks" ] },
       ],
     }, {
       "kind": "group",
       "name": "Products",
       "children": [
         { "path": "<PRODUCTS>/OneMinute.app", "id": "E9FEC9262AD4570A000FEE6E", "type": "wrapper.application", "index": false },
+        { "path": "<PRODUCTS>/OneMinuteWidgetExtension.appex", "id": "E93EABC030A6540B0071E8C5", "type": "wrapper.app-extension", "index": false, "target-membership": [ { "build-phase": "OneMinute/copy/Embed Foundation Extensions", "header-preservation": "remove-on-copy" } ] },
       ],
     },
   ],
@@ -45,10 +77,18 @@
       "id": "E9FEC9252AD4570A000FEE6E",
       "product": "Products/OneMinute.app",
       "product-type": "application",
+      "dependencies": [
+        "OneMinuteWidgetExtension",
+      ],
       "build-phases": [
         "compile-sources",
         "frameworks",
         "resources",
+        {
+          "kind": "copy",
+          "name": "Embed Foundation Extensions",
+          "bundle-base-path": "plugins-directory",
+        },
       ],
       "build-settings": {
         "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
@@ -59,7 +99,9 @@
         "ENABLE_PREVIEWS": "YES",
         "GENERATE_INFOPLIST_FILE": "YES",
         "INFOPLIST_FILE": "OneMinute/Info.plist",
+        "INFOPLIST_KEY_ITSAppUsesNonExemptEncryption": "NO",
         "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.utilities",
+        "INFOPLIST_KEY_NSSupportsLiveActivities": "YES",
         "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
         "INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents": "YES",
         "INFOPLIST_KEY_UILaunchScreen_Generation": "YES",
@@ -74,6 +116,42 @@
         "PRODUCT_BUNDLE_IDENTIFIER": "design.td540.OneMinute",
         "PRODUCT_NAME": "$(TARGET_NAME)",
         "SWIFT_EMIT_LOC_STRINGS": "YES",
+        "SWIFT_VERSION": "5.0",
+        "TARGETED_DEVICE_FAMILY": "1,2",
+      },
+    }, {
+      "name": "OneMinuteWidgetExtension",
+      "id": "E93EABBF30A6540B0071E8C5",
+      "product": "Products/OneMinuteWidgetExtension.appex",
+      "product-type": "app-extension",
+      "build-phases": [
+        "compile-sources",
+        "frameworks",
+        "resources",
+      ],
+      "build-settings": {
+        "ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME": "AccentColor",
+        "ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME": "WidgetBackground",
+        "CODE_SIGN_STYLE": "Automatic",
+        "CURRENT_PROJECT_VERSION": "1",
+        "GENERATE_INFOPLIST_FILE": "YES",
+        "INFOPLIST_FILE": "OneMinuteWidget/Info.plist",
+        "INFOPLIST_KEY_CFBundleDisplayName": "1 Minute",
+        "INFOPLIST_KEY_NSHumanReadableCopyright": "",
+        "IPHONEOS_DEPLOYMENT_TARGET": "27.1",
+        "LD_RUNPATH_SEARCH_PATHS": [
+          "$(inherited)",
+          "@executable_path/Frameworks",
+          "@executable_path/../../Frameworks",
+        ],
+        "MARKETING_VERSION": "2.0",
+        "PRODUCT_BUNDLE_IDENTIFIER": "design.td540.OneMinute.OneMinuteWidget",
+        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "SKIP_INSTALL": "YES",
+        "STRING_CATALOG_GENERATE_SYMBOLS": "YES",
+        "SWIFT_APPROACHABLE_CONCURRENCY": "YES",
+        "SWIFT_EMIT_LOC_STRINGS": "YES",
+        "SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY": "YES",
         "SWIFT_VERSION": "5.0",
         "TARGETED_DEVICE_FAMILY": "1,2",
       },
@@ -146,5 +224,5 @@
     "VALIDATE_PRODUCT[config=Release]": "YES",
   },
   "last-upgrade": "27.2",
-  "last-swift-update": "15.0",
+  "last-swift-update": "27.2",
 }

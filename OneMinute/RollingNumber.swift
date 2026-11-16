@@ -91,7 +91,6 @@ private struct DigitDrum: View {
 
     var body: some View {
         DrumFaces(position: Double(position), faces: faces)
-            .clipped()
             .onAppear {
                 if faces.isEmpty { roll(to: Self.digit(of: value, at: place), up: true) }
             }
@@ -118,39 +117,55 @@ private struct DigitDrum: View {
     }
 }
 
-/// Draws the faces around a drum position. The drum is a four-sided prism as tall as the line:
-/// at a fractional position the lower face tips back as it rolls up and out, while the next one
-/// tips forward as it comes in from below.
+/// Draws the faces around a drum position, printed one below the other on a strip wound around an
+/// invisible drum, which shows through the line like an odometer's window. The face in front reads
+/// like plain text; at a fractional position the faces travel together over the drum's curve,
+/// getting squashed and narrower toward the top and bottom of the line.
 @Animatable
 private struct DrumFaces: View {
     var position: Double
     @AnimatableIgnored var faces: [Int: Int]
 
+    /// The drum's radius, in line heights; at least 0.5, the line being the drum's window. Smaller
+    /// drums curve more.
+    private let radius = 0.6
+    /// How much narrower faces get as they turn away.
+    private let perspective = 0.4
+
     var body: some View {
         let base = position.rounded(.down)
         let fraction = position - base
+        let radius = radius, perspective = perspective
+
         ZStack {
-            face(at: Int(base), turn: fraction)
-            face(at: Int(base) + 1, turn: fraction - 1)
+            face(at: Int(base))
+                .visualEffect { content, proxy in
+                    content.offset(y: -fraction * proxy.size.height)
+                }
+            face(at: Int(base) + 1)
+                .visualEffect { content, proxy in
+                    content.offset(y: (1 - fraction) * proxy.size.height)
+                }
         }
+        .visualEffect { content, proxy in
+            let radius = radius * proxy.size.height
+            // How far up or down the drum moves content at most: at the window's top and bottom.
+            let edge = proxy.size.height / 2
+            return content.distortionEffect(
+                ShaderLibrary.drumRoll(.float2(proxy.size), .float(radius), .float(perspective)),
+                maxSampleOffset: CGSize(
+                    width: proxy.size.width / 2 * perspective,
+                    height: radius * asin(edge / radius) - edge
+                )
+            )
+        }
+        .clipped()
     }
 
-    /// A face turned away from the viewer by `turn` quarter turns: positive turns roll it up,
-    /// negative ones down. A blank face still takes up a digit's size, so the width doesn't change.
-    private func face(at position: Int, turn: Double) -> some View {
+    /// A blank face still takes up a digit's size, so the width doesn't change.
+    private func face(at position: Int) -> some View {
         let digit = faces[position]
-        return Text(String(digit ?? 0))
-            .opacity(digit == nil ? 0 : 1)
-            .visualEffect { content, proxy in
-                let angle = Angle.degrees(turn * 90)
-                return content
-                    // Tilted around its own center, then moved along the prism's side, so that
-                    // neighboring faces meet at their edges.
-                    .rotation3DEffect(angle, axis: (x: 1, y: 0, z: 0), perspective: 0.4)
-                    .offset(y: -proxy.size.height / 2 * sin(angle.radians))
-                    // Faces turned away catch less light.
-                    .opacity(cos(angle.radians))
-            }
+        return Text(String(digit ?? 0)).opacity(digit == nil ? 0 : 1)
     }
 }
 
@@ -158,7 +173,6 @@ private struct DrumFaces: View {
     HStack {
         ForEach([0, 0.25, 0.5, 0.75], id: \.self) { position in
             DrumFaces(position: position, faces: [0: 1, 1: 2])
-                .clipped()
                 .border(.red)
         }
     }
