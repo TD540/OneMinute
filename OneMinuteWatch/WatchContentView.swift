@@ -13,6 +13,9 @@ private let fastMode = false
 struct WatchContentView: View {
     /// Seconds counted so far, or `nil` when the timer isn't running.
     @State private var seconds: Int?
+    /// When the timer started, here or on iPhone, or `nil` when it isn't running.
+    @State private var startDate: Date?
+    private let sync = TimerSync.shared
     /// Keeps the app running, and its haptics playing, while the wrist is down.
     @State private var session: WKExtendedRuntimeSession?
     /// Distance from the display's edges to the corner brackets, which frame the text.
@@ -22,7 +25,7 @@ struct WatchContentView: View {
     /// Where the last tap landed, for the green flood.
     @State private var tapLocation = CGPoint.zero
 
-    private var isRunning: Bool { seconds != nil }
+    private var isRunning: Bool { startDate != nil }
     /// Thinner than on iPhone, to suit the smaller display.
     private let lineWidth: CGFloat = 6
 
@@ -68,10 +71,12 @@ struct WatchContentView: View {
         // Hides the clock, which would otherwise sit on the top-right bracket. Undocumented API.
         ._statusBarHidden(true)
         .animation(.easeInOut, value: isRunning)
-        .task(id: isRunning) {
+        .onChange(of: sync.received, initial: true) { follow(sync.received) }
+        .task(id: startDate) {
             // Restarted whenever the timer starts or stops; stopping cancels the count.
-            guard isRunning else { return }
-            let start = ContinuousClock.now
+            guard let startDate else { return }
+            // The start on the steady clock; in the past when following a start on iPhone.
+            let start = ContinuousClock.now - .seconds(Date.now.timeIntervalSince(startDate))
             startSession()
             defer { endSession() }
             try? await count(from: start)
@@ -80,7 +85,39 @@ struct WatchContentView: View {
 
     private func toggle() {
         WKInterfaceDevice.current().play(isRunning ? .stop : .start)
-        seconds = isRunning ? nil : 0
+        let now = Date.now
+        if isRunning {
+            stop()
+            sync.send(.init(kind: .stop, date: now))
+        } else {
+            startDate = now
+            seconds = 0
+            sync.send(.init(kind: .start, date: now))
+        }
+    }
+
+    private func stop() {
+        startDate = nil
+        seconds = nil
+    }
+
+    /// Starts or stops along with iPhone.
+    private func follow(_ event: TimerSync.Event?) {
+        guard let event else { return }
+        switch event.kind {
+        case .start:
+            let elapsed = Date.now.timeIntervalSince(event.date)
+            // Skip a minute that's already over, or the same or a later start than this one's.
+            // Following only earlier starts settles both devices on the first one.
+            guard elapsed < 61 else { return }
+            if let startDate, startDate <= event.date { return }
+            startDate = event.date
+            seconds = min(max(Int(elapsed), 0), 60)
+        case .stop:
+            // Only a stop of this timer, not one from before it started.
+            guard let startDate, event.date > startDate else { return }
+            stop()
+        }
     }
 
     /// Toggles the timer on a plain tap only: any touch that moves, like a swipe, is cancelled
@@ -138,7 +175,7 @@ struct WatchContentView: View {
 
         // Show 60 for one more tick before going back to "start".
         try await Task.sleep(until: start + tick * 61)
-        seconds = nil
+        stop()
     }
 }
 

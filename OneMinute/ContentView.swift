@@ -14,6 +14,9 @@ private let fastMode = false
 struct ContentView: View {
     /// Seconds counted so far, or `nil` when the timer isn't running.
     @State private var seconds: Int?
+    /// When the timer started, here or on Apple Watch, or `nil` when it isn't running.
+    @State private var startDate: Date?
+    private let sync = TimerSync.shared
     @State private var haptics = Haptics()
     @State private var foldSides = FoldSides()
     @Environment(\.scenePhase) private var scenePhase
@@ -32,7 +35,7 @@ struct ContentView: View {
     @State private var tapLocation = CGPoint.zero
     @State private var tapCount = 0
 
-    private var isRunning: Bool { seconds != nil }
+    private var isRunning: Bool { startDate != nil }
 
     var body: some View {
         Group {
@@ -84,23 +87,67 @@ struct ContentView: View {
         .statusBarHidden()
         .animation(.easeInOut, value: isRunning)
         .onChange(of: scenePhase, initial: true) { isActive = scenePhase == .active }
-        .task(id: isRunning) {
+        .onChange(of: sync.received, initial: true) { follow(sync.received) }
+        .task(id: startDate) {
             // Restarted whenever the timer starts or stops; stopping cancels the count.
-            guard isRunning else { return }
-            // Read both clocks together, before requesting the Live Activity, which can take a
-            // while: starting from the same instant keeps the app and the activity in step.
-            let start = ContinuousClock.now
-            let activityID = startLiveActivity(start: .now)
-            try? await count(from: start)
+            guard let startDate else { return }
+            // The start on the steady clock, worked out before requesting the Live Activity,
+            // which can take a while. In the past when following a start on Apple Watch.
+            let start = ContinuousClock.now - .seconds(Date.now.timeIntervalSince(startDate))
+            let activityID = startLiveActivity(start: startDate)
+            // Suspended apps don't run, so ask for extra time after leaving the app to end the
+            // activity when the minute runs out. iOS grants about 30 seconds.
+            let backgroundTask = BackgroundTask(name: "Minute")
+            let finished = (try? await count(from: start)) != nil
+            // Linger for 5 seconds after a minute that ran out; vanish at once when stopped early.
+            // A date already past, after catching up on a minute that ran out while suspended,
+            // removes it at once too.
+            let dismissalPolicy: ActivityUIDismissalPolicy =
+                finished ? .after(startDate.addingTimeInterval(65)) : .immediate
             // A separate task, since this one may have been cancelled by stopping the timer.
-            if let activityID {
-                Task { await Self.endLiveActivities([activityID]) }
+            Task {
+                if let activityID {
+                    await Self.endLiveActivities([activityID], dismissalPolicy: dismissalPolicy)
+                }
+                backgroundTask.end()
             }
         }
     }
 
     private func toggle() {
-        seconds = isRunning ? nil : 0
+        let now = Date.now
+        if isRunning {
+            stop()
+            sync.send(.init(kind: .stop, date: now))
+        } else {
+            startDate = now
+            seconds = 0
+            sync.send(.init(kind: .start, date: now))
+        }
+    }
+
+    private func stop() {
+        startDate = nil
+        seconds = nil
+    }
+
+    /// Starts or stops along with Apple Watch.
+    private func follow(_ event: TimerSync.Event?) {
+        guard let event else { return }
+        switch event.kind {
+        case .start:
+            let elapsed = Date.now.timeIntervalSince(event.date)
+            // Skip a minute that's already over, or the same or a later start than this one's.
+            // Following only earlier starts settles both devices on the first one.
+            guard elapsed < 61 else { return }
+            if let startDate, startDate <= event.date { return }
+            startDate = event.date
+            seconds = min(max(Int(elapsed), 0), 60)
+        case .stop:
+            // Only a stop of this timer, not one from before it started.
+            guard let startDate, event.date > startDate else { return }
+            stop()
+        }
     }
 
     /// Toggles the timer on a plain tap only. Unlike a button, which fires as long as the finger
@@ -151,9 +198,12 @@ struct ContentView: View {
     /// Ends the timer's Live Activities with the given IDs. Activities aren't `Sendable`, so
     /// they're looked up here, off the main actor, rather than handed over from it.
     @concurrent
-    private static func endLiveActivities(_ ids: Set<String>) async {
+    private static func endLiveActivities(
+        _ ids: Set<String>,
+        dismissalPolicy: ActivityUIDismissalPolicy = .immediate
+    ) async {
         for activity in Activity<TimerActivityAttributes>.activities where ids.contains(activity.id) {
-            await activity.end(nil, dismissalPolicy: .immediate)
+            await activity.end(nil, dismissalPolicy: dismissalPolicy)
         }
     }
 
@@ -182,7 +232,25 @@ struct ContentView: View {
 
         // Show 60 for one more tick before going back to "start".
         try await Task.sleep(until: start + tick * 61)
-        seconds = nil
+        stop()
+    }
+}
+
+/// Extra time to keep running after the app leaves the foreground, until `end()` is called or
+/// iOS's allowance runs out.
+private final class BackgroundTask {
+    private var id = UIBackgroundTaskIdentifier.invalid
+
+    init(name: String) {
+        id = UIApplication.shared.beginBackgroundTask(withName: name) { [weak self] in
+            self?.end()
+        }
+    }
+
+    func end() {
+        guard id != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(id)
+        id = .invalid
     }
 }
 
