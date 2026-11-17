@@ -71,11 +71,21 @@ nonisolated private struct CornerBrackets: Shape {
             let corner = bend.corner
             if let camera, hypot(camera.midX - corner.x, camera.midY - corner.y) < arm { continue }
 
+            // The arms reach at least to where the bend meets the edges. On very round displays,
+            // like Apple Watch, the bend is longer than `arm`, and the line would otherwise double
+            // back on itself, ending in a sharp turn instead of a round cap.
+            let bendEnd = bend.curves.last?.to ?? bend.start
+            let reach = max(
+                arm,
+                abs(bend.start.x - corner.x) + abs(bend.start.y - corner.y),
+                abs(bendEnd.x - corner.x) + abs(bendEnd.y - corner.y)
+            )
+
             // The ends of the two arms, pointing from the corner toward the middle.
             let dx: CGFloat = corner.x == rect.minX ? 1 : -1
             let dy: CGFloat = corner.y == rect.minY ? 1 : -1
-            let horizontalEnd = CGPoint(x: corner.x + dx * arm, y: corner.y)
-            let verticalEnd = CGPoint(x: corner.x, y: corner.y + dy * arm)
+            let horizontalEnd = CGPoint(x: corner.x + dx * reach, y: corner.y)
+            let verticalEnd = CGPoint(x: corner.x, y: corner.y + dy * reach)
 
             // Arm, bend, arm, as one line. The bend starts on one edge and ends on the other.
             let startsHorizontally = abs(bend.start.y - corner.y) < 0.01

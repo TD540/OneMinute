@@ -15,39 +15,45 @@ struct WatchContentView: View {
     @State private var seconds: Int?
     /// Keeps the app running, and its haptics playing, while the wrist is down.
     @State private var session: WKExtendedRuntimeSession?
-    /// The display's safe area, measured outside `ignoresSafeArea`, so the text stays clear of the clock.
-    @State private var safeArea = EdgeInsets()
+    /// Distance from the display's edges to the corner brackets, which frame the text.
+    @State private var indicatorInset: CGFloat = 20
     /// Where the current touch started, once it has moved too far to count as a tap.
     @State private var cancelledTouch: CGPoint?
     /// Where the last tap landed, for the green flood.
     @State private var tapLocation = CGPoint.zero
 
     private var isRunning: Bool { seconds != nil }
+    /// Thinner than on iPhone, to suit the smaller display.
+    private let lineWidth: CGFloat = 6
 
     var body: some View {
-        VStack(spacing: 0) {
-            Group {
-                if let seconds {
-                    RollingNumber(value: seconds, tracking: -0.2, overhang: 0.07)
-                } else {
-                    Text("start")
-                }
-            }
-            // Far too big for any display, then shrunk to fill the space.
-            .font(.system(size: 400, weight: .semibold, design: .rounded))
-            .lineLimit(1)
-            .minimumScaleFactor(0.01)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            // A hint that tapping again stops the timer.
-            if isRunning {
-                Text("stop")
-                    .font(.system(.headline, design: .rounded, weight: .semibold))
+        Group {
+            if let seconds {
+                RollingNumber(value: seconds, tracking: -0.2, overhang: 0.07)
+            } else {
+                Text("start")
             }
         }
-        .padding(safeArea)
-        .padding(4)
+        // Far too big for any display, then shrunk to fill the space between the corner brackets.
+        .font(.system(size: 400, weight: .semibold, design: .rounded))
+        .lineLimit(1)
+        .minimumScaleFactor(0.01)
+        // Out to the outer edges of the brackets' lines.
+        .padding(indicatorInset - lineWidth / 2)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // A hint that tapping again stops the timer.
+        .overlay(alignment: .bottom) {
+            if isRunning {
+                // Sitting on the bottom edge of the lower brackets' lines.
+                Text("stop")
+                    .font(.system(.headline, design: .rounded, weight: .semibold))
+                    .alignmentGuide(.bottom) { $0[.lastTextBaseline] }
+                    .padding(.bottom, indicatorInset - lineWidth / 2)
+            }
+        }
+        .onGeometryChange(for: CGFloat.self, of: \.tappableIndicatorsInset) { indicatorInset = $0 }
+        // Black while running.
+        .tappableIndicators(color: isRunning ? .black : .primary, lineWidth: lineWidth)
         // Green floods out from the tap that starts the timer, and drains into the one that stops it.
         .background { Flood(isFilled: isRunning, origin: tapLocation, color: .green) }
         .contentShape(.rect)
@@ -57,9 +63,10 @@ struct WatchContentView: View {
         .accessibilityAction(.default, toggle)
         // Black on green while running.
         .foregroundStyle(isRunning ? Color.black : Color.primary)
-        // Cover the whole display, so the flood reaches its corners.
+        // Cover the whole display; the flood reaches its corners and the brackets follow them.
         .ignoresSafeArea()
-        .onGeometryChange(for: EdgeInsets.self, of: \.safeAreaInsets) { safeArea = $0 }
+        // Hides the clock, which would otherwise sit on the top-right bracket. Undocumented API.
+        ._statusBarHidden(true)
         .animation(.easeInOut, value: isRunning)
         .task(id: isRunning) {
             // Restarted whenever the timer starts or stops; stopping cancels the count.

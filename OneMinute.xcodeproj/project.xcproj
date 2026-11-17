@@ -35,6 +35,7 @@
           "inclusions": [
             "Flood.swift",
             "RollingNumber.swift",
+            "TappableIndicators.swift",
           ],
         },
       ],
