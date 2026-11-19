@@ -1,0 +1,13 @@
+{
+  "id" : "b20879e1-a2f5-4a6f-92e8-492ec9470a64",
+  "targets" : [
+    {
+      "id" : "86704570-7ad4-4b51-b3ec-9f443d56e26b",
+      "name" : "OneMinute"
+    },
+    {
+      "id" : "3838bc1b-4188-4a22-9ee5-573824132875",
+      "name" : "OneMinuteWatch"
+    }
+  ]
+}

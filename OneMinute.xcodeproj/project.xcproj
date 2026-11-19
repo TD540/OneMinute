@@ -83,7 +83,9 @@
         { "path": "/System/Library/Frameworks/WidgetKit.framework", "target-membership": [ "OneMinuteWidgetExtension/frameworks" ] },
         { "path": "/System/Library/Frameworks/SwiftUI.framework", "target-membership": [ "OneMinuteWidgetExtension/frameworks" ] },
       ],
-    }, {
+    },
+    { "path": "AGENTS.md" },
+    {
       "kind": "group",
       "name": "Products",
       "children": [
